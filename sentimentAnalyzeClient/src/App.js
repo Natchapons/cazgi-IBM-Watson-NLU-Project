@@ -4,6 +4,11 @@ import EmotionTable from './EmotionTable.js';
 import React from 'react';
 
 class App extends React.Component {
+  
+  componentDidMount(){
+    document.title = "Sentiment Analyzer"
+  }
+
   state = {innercomp:<textarea rows="4" cols="50" id="textinput"/>,
             mode: "text",
           sentimentOutput:[],

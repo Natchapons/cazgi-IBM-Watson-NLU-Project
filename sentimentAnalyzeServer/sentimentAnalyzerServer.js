@@ -1,6 +1,7 @@
 const express = require('express');
 const app = new express();
-DeviceMotionEvent.config();
+const dotenv = require('dotenv');
+dotenv.config();
 
 function getNLUInstance(){
     let api_key = process.env.API_KEY;
