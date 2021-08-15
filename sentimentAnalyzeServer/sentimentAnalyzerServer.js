@@ -56,11 +56,12 @@ app.get("/",(req,res)=>{
   });
 
 app.get("/url/emotion", (req,res) => {
-
+    const nlu= getNLUInstance();
     return res.send({"sadness":"0.250624","joy":"0.722962","fear":"0.009157","disgust":"0.003132","anger":"0.016098"});
 });
 
 app.get("/url/sentiment", (req,res) => {
+    const nlu= getNLUInstance();
     return res.send("url sentiment for "+req.query.url);
 });
 
@@ -80,6 +81,7 @@ app.get("/text/emotion", (req,res) => {
 });
 
 app.get("/text/sentiment", (req,res) => {
+    const nlu= getNLUInstance();
     return res.send("text sentiment for "+req.query.text);
 });
 
