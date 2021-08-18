@@ -1,7 +1,6 @@
 const express = require('express');
 const app = new express();
 const dotenv = require('dotenv');
-const title = 'Sentiment Analyzer'
 dotenv.config();
 
 function getNLUInstance(){
@@ -18,31 +17,6 @@ function getNLUInstance(){
         }),
         serviceUrl: api_url,
     });
-
-    const analyzeParams = {
-      'url': 'www.ibm.com',
-      'features': {
-        'entities': {
-          'emotion': true,
-          'sentiment': true,
-          'limit': 2,
-        },
-        'keywords': {
-          'emotion': true,
-          'sentiment': true,
-          'limit': 2,
-        },
-      },
-    };
-    
-    naturalLanguageUnderstanding.analyze(analyzeParams)
-      .then(analysisResults => {
-        console.log(JSON.stringify(analysisResults, null, 2));
-      })
-      .catch(err => {
-        console.log('error:', err);
-      });
-
     return naturalLanguageUnderstanding;
 }
 
@@ -56,33 +30,73 @@ app.get("/",(req,res)=>{
   });
 
 app.get("/url/emotion", (req,res) => {
-    const nlu= getNLUInstance();
-    return res.send({"sadness":"0.250624","joy":"0.722962","fear":"0.009157","disgust":"0.003132","anger":"0.016098"});
+    const analyzeParams = {
+        'url': req.query.url,
+        'features': {
+            'emotion': { }
+        }
+    };
+
+    getNLUInstance().analyze(analyzeParams).then(analysisResults => {
+        //console.log(JSON.stringify(analysisResults, null, 2));
+        res.send(analysisResults.result.emotion.document.emotion); //e.g. {"sadness":0.44386,"joy":0.50775,"fear":0.044669,"disgust":0.027835,"anger":0.087054}
+    })
+    .catch(err => {
+        console.log('error:', err);
+        res.status(500).send("Could not process request.");
+    });
 });
 
 app.get("/url/sentiment", (req,res) => {
-    const nlu= getNLUInstance();
-    return res.send("url sentiment for "+req.query.url);
+    const analyzeParams = {
+        'url': req.query.url,
+        'features': {
+            'sentiment' : { }
+        }
+    };
+
+    getNLUInstance().analyze(analyzeParams).then(analysisResults => {
+        //console.log(JSON.stringify(analysisResults, null, 2));
+        res.send(analysisResults.result.sentiment.document.label); //e.g. "positive", "neutral", or "negative"
+    })
+    .catch(err => {
+        console.log('error:', err);
+        res.status(500).send("Could not process request.");
+    });
 });
 
 app.get("/text/emotion", (req,res) => {
-    const nlu= getNLUInstance();
-    var parameters= { text: "I am having a bad day today, \
-        could someone help me please",features : {emotion: {}}}
-    ret= nlu.analyze( parameters ) //, function( error, response){
-           .then (analysisResults=> {
-            console.log(JSON.stringify(analysisResults, null, 2));
-            console.log( "in here")
-           })
-           .catch(err=> {console.log( "error",err);
-           });
-    console.log( ret );
-    return res.send({"sadness":"0.250624","joy":"0.722962","fear":"0.009157","disgust":"0.003132","anger":"0.016098"});
+    const analyzeParams = {
+        'text': req.query.text,
+        'features': {
+            'emotion': { }
+        }
+    };
+
+    getNLUInstance().analyze(analyzeParams).then(analysisResults => {
+        res.send(analysisResults.result.emotion.document.emotion);
+    })
+    .catch(err => {
+        console.log('error:', err);
+        res.status(500).send("Could not process request.");
+    });
 });
 
 app.get("/text/sentiment", (req,res) => {
-    const nlu= getNLUInstance();
-    return res.send("text sentiment for "+req.query.text);
+    const analyzeParams = {
+        'text': req.query.text,
+        'features': {
+            'sentiment' : { }
+        }
+    };
+
+    getNLUInstance().analyze(analyzeParams).then(analysisResults => {
+        res.send(analysisResults.result.sentiment.document.label);
+    })
+    .catch(err => {
+        console.log('error:', err);
+        res.status(500).send("Could not process request.");
+    });
 });
 
 let server = app.listen(8080, () => {
